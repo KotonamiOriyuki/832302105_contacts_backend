@@ -228,7 +228,7 @@ async def update_contact(contact_id: str, contact: ContactData, authorization: s
             "phone": contact.phone or "",
             "address": contact.address or "",
         }
-        # debug: use ObjectId to transform string to mongodb id type, instead of string -> search error
+        # debug: use ObjectId to transform string to mongodb id type, instead of string -> search error, so does code below
         result = contacts_collection.update_one(
             {"_id": ObjectId(contact_id), "owner_uid": user["uid"]},
             {"$set": update_data}
@@ -246,7 +246,6 @@ async def delete_contact(contact_id: str, authorization: str = Header(None)):
         raise HTTPException(status_code=500, detail="Disconnected from MongoDB")
     try:
         user = getToken(authorization)
-        from bson import ObjectId
         result = contacts_collection.delete_one(
             {"_id": ObjectId(contact_id), "owner_uid": user["uid"]}
         )
@@ -290,5 +289,6 @@ async def add_friend(uid: int, authorization: str = Header(None)):
         "address": friend.get("address") or "",
     }
     contacts_collection.insert_one(contact_data)
+
 
     return {"message": "Added"}
